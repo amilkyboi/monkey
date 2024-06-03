@@ -1,2 +1,3 @@
 # monkey
-Following the monkey tutorial: https://monkeylang.org/.
+
+Following the monkey tutorial: <https://monkeylang.org/>.
