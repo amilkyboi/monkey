@@ -50,6 +50,7 @@ const (
 	NOT_EQ   = "NOT_EQ"
 )
 
+// map syntax looks like map[KeyType]ValueType
 var keywords = map[string]TokenType{
 	"fn":     FUNCTION,
 	"let":    LET,

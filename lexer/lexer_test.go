@@ -11,7 +11,8 @@ func TestNextToken(t *testing.T) {
 	// compare raw monkey input and expected lexer output
 
 	// backticks denote a multiline raw string
-	input := `let five = 5;
+	input := `
+	let five = 5;
 	let ten = 10;
 	
 	let add = fn(x, y) {
@@ -29,7 +30,8 @@ func TestNextToken(t *testing.T) {
 	}
 	
 	10 == 10;
-	10 != 9;`
+	10 != 9;
+	`
 
 	// expected lexer output
 	tests := []struct {
