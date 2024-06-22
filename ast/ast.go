@@ -49,7 +49,25 @@ func (ls *LetStatement) statementNode() {}
 
 func (ls *LetStatement) TokenLiteral() string {
 	// Implements the Node interface
+
 	return ls.Token.Literal
+}
+
+type ReturnStatement struct {
+	// Holds the RETURN token and the expression
+	// return <expression>
+
+	Token token.Token // The token.RETURN token
+	Value Expression
+}
+
+// Implements the statement interface
+func (rs *ReturnStatement) statementNode() {}
+
+func (rs *ReturnStatement) TokenLiteral() string {
+	// Implements the Node interface
+
+	return rs.Token.Literal
 }
 
 type Identifier struct {
@@ -65,5 +83,6 @@ func (i *Identifier) expressionNode() {}
 
 func (i *Identifier) TokenLiteral() string {
 	// Implements the Node interface
+
 	return i.Token.Literal
 }
