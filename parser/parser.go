@@ -3,6 +3,7 @@
 package parser
 
 import (
+	"fmt"
 	"monkey/ast"
 	"monkey/lexer"
 	"monkey/token"
@@ -11,39 +12,54 @@ import (
 type Parser struct {
 	l *lexer.Lexer
 
-	// these act like the two pointers that the lexer has, but instead of pointing to chars in the
+	// Slice of strings to hold error messages
+	errors []string
+
+	// These act like the two pointers that the lexer has, but instead of pointing to chars in the
 	// input, they point to tokens
 	curToken  token.Token
 	peekToken token.Token
 }
 
 func New(l *lexer.Lexer) *Parser {
-	// creates a new parser
+	// Creates a new parser
+	p := &Parser{l: l, errors: []string{}}
 
-	p := &Parser{l: l}
-
-	// read two tokens, so curToken and peekToken are both set
+	// Read two tokens, so curToken and peekToken are both set
 	p.nextToken()
 	p.nextToken()
 
 	return p
 }
 
+func (p *Parser) Errors() []string {
+	// Returns parser errors to check if any were encountered
+
+	return p.errors
+}
+
+func (p *Parser) peekError(t token.TokenType) {
+	// Adds a new error to the parser when the next token is not as expected
+
+	msg := fmt.Sprintf("expected next token to be %s, got %s instead", t, p.peekToken.Type)
+	p.errors = append(p.errors, msg)
+}
+
 func (p *Parser) nextToken() {
-	// advance curToken and peekToken
+	// Advances curToken and peekToken
 
 	p.curToken = p.peekToken
 	p.peekToken = p.l.NextToken()
 }
 
 func (p *Parser) ParseProgram() *ast.Program {
-	// constructs the root node of the AST, iterates over every token in the input, and returns the
+	// Constructs the root node of the AST, iterates over every token in the input, and returns the
 	// root node when finished
 
 	program := &ast.Program{}
 	program.Statements = []ast.Statement{}
 
-	for p.curToken.Type != token.EOF {
+	for !p.curTokenIs(token.EOF) {
 		stmt := p.parseStatement()
 		if stmt != nil {
 			program.Statements = append(program.Statements, stmt)
@@ -55,6 +71,8 @@ func (p *Parser) ParseProgram() *ast.Program {
 }
 
 func (p *Parser) parseStatement() ast.Statement {
+	// Parses a statement based on its corresponding token
+
 	switch p.curToken.Type {
 	case token.LET:
 		return p.parseLetStatement()
@@ -64,24 +82,26 @@ func (p *Parser) parseStatement() ast.Statement {
 }
 
 func (p *Parser) parseLetStatement() *ast.LetStatement {
-	// constructs an *ast.LetStatement node with a LET token
+	// Constructs an *ast.LetStatement node with a LET token
 	// let <identifer> = <expression>
 
 	stmt := &ast.LetStatement{Token: p.curToken}
 
-	// start with the identifier
+	// Ensure the identifier exists
 	if !p.expectPeek(token.IDENT) {
 		return nil
 	}
 
 	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 
+	// Ensure the assignment operator exists
 	if !p.expectPeek(token.ASSIGN) {
 		return nil
 	}
 
-	// TODO: 06/19/24 - we're skipping the expressions until we encounter a semicolon
+	// TODO: 06/19/24 - For now, we're skipping the expressions until we encounter a semicolon
 
+	// Ensure the line ends
 	for !p.curTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
@@ -90,18 +110,26 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 }
 
 func (p *Parser) curTokenIs(t token.TokenType) bool {
+	// Checks if the current token is of type `t`
+
 	return p.curToken.Type == t
 }
 
 func (p *Parser) peekTokenIs(t token.TokenType) bool {
+	// Checks if the next token is of type `t`
+
 	return p.peekToken.Type == t
 }
 
 func (p *Parser) expectPeek(t token.TokenType) bool {
+	// Checks the type of peekToken and advances if the type is as expected, otherwise logs a
+	// peekError
+
 	if p.peekTokenIs(t) {
 		p.nextToken()
 		return true
 	} else {
+		p.peekError(t)
 		return false
 	}
 }

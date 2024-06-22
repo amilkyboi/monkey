@@ -19,13 +19,13 @@ type Expression interface {
 }
 
 type Program struct {
-	// root node of every AST
+	// Root node of every AST
 
 	Statements []Statement
 }
 
 func (p *Program) TokenLiteral() string {
-	// returns the literal value of the token the node is associated with
+	// Returns the literal value of the token the node is associated with
 
 	if len(p.Statements) > 0 {
 		return p.Statements[0].TokenLiteral()
@@ -35,35 +35,35 @@ func (p *Program) TokenLiteral() string {
 }
 
 type LetStatement struct {
-	// holds the LET token, the identifier, and the expression
+	// Holds the LET token, the identifier, and the expression
 	// let <name> = <value> <=> let <identifer> = <expression>
 	// let x = 5 => holds: LET, Identifier(IDENT, "x"), and 5
 
-	Token token.Token // the token.LET token
+	Token token.Token // The token.LET token
 	Name  *Identifier
 	Value Expression
 }
 
-// implements Statement interface
+// Implements the Statement interface
 func (ls *LetStatement) statementNode() {}
 
-// implements Node interface
 func (ls *LetStatement) TokenLiteral() string {
+	// Implements the Node interface
 	return ls.Token.Literal
 }
 
 type Identifier struct {
-	// holds the identifier of a binding
+	// Holds the identifier of a binding
 	// let x = 5 => holds: IDENT and "x"
 
-	Token token.Token // the token.IDENT token
+	Token token.Token // The token.IDENT token
 	Value string
 }
 
-// implements Expression interface
+// Implements the Expression interface
 func (i *Identifier) expressionNode() {}
 
-// implements Node interface
 func (i *Identifier) TokenLiteral() string {
+	// Implements the Node interface
 	return i.Token.Literal
 }

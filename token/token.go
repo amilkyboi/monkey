@@ -10,15 +10,15 @@ type Token struct {
 }
 
 const (
-	// special
+	// Special
 	ILLEGAL = "ILLEGAL"
 	EOF     = "EOF"
 
-	// identifiers & literals
+	// Identifiers & literals
 	IDENT = "IDENT" // variable & function names
 	INT   = "INT"
 
-	// operators
+	// Operators
 	ASSIGN   = "="
 	PLUS     = "+"
 	MINUS    = "-"
@@ -29,7 +29,7 @@ const (
 	LT = "<"
 	GT = ">"
 
-	// delimiters
+	// Delimiters
 	COMMA     = ","
 	SEMICOLON = ";"
 
@@ -38,7 +38,7 @@ const (
 	LBRACE = "{"
 	RBRACE = "}"
 
-	// keywords
+	// Keywords
 	FUNCTION = "FUNCTION"
 	LET      = "LET"
 	TRUE     = "TRUE"
@@ -50,7 +50,7 @@ const (
 	NOT_EQ   = "NOT_EQ"
 )
 
-// map syntax looks like map[KeyType]ValueType
+// The syntax for maps looks like `map[KeyType]ValueType`
 var keywords = map[string]TokenType{
 	"fn":     FUNCTION,
 	"let":    LET,
@@ -62,11 +62,12 @@ var keywords = map[string]TokenType{
 }
 
 func LookupIdent(ident string) TokenType {
-	// check if the identifier is in the dictionary of keywords; if so, return its corresponding
-	// token; otherwise, return the user-defined identifier
+	// Checks if the identifier is in the dictionary of keywords; if so, returns its corresponding
+	// token; otherwise, returns the user-defined identifier
 
 	if tok, ok := keywords[ident]; ok {
 		return tok
 	}
+
 	return IDENT
 }

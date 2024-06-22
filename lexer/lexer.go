@@ -6,13 +6,13 @@ import "monkey/token"
 
 type Lexer struct {
 	input        string
-	position     int  // current position in input (points to current char)
-	readPosition int  // current reading position in input (after current char)
-	ch           byte // current char under examination
+	position     int  // Current position in input (points to current char)
+	readPosition int  // Current reading position in input (after current char)
+	ch           byte // Current char under examination
 }
 
 func New(input string) *Lexer {
-	// create a new Lexer and read the first char
+	// Creates a new Lexer and reads the first char
 
 	l := &Lexer{input: input}
 	l.readChar()
@@ -20,7 +20,7 @@ func New(input string) *Lexer {
 }
 
 func (l *Lexer) readChar() {
-	// give the next char and advance the cursor position
+	// Gives the next char and advances the cursor position
 
 	if l.readPosition >= len(l.input) {
 		// ASCII code for NULL is 0
@@ -29,14 +29,14 @@ func (l *Lexer) readChar() {
 		l.ch = l.input[l.readPosition]
 	}
 
-	// advance the current position
+	// Advance the current position
 	l.position = l.readPosition
-	// advance the reading position
+	// Advance the reading position
 	l.readPosition += 1
 }
 
 func (l *Lexer) NextToken() token.Token {
-	// read the current char and return its corresponding token after advancing the cursor
+	// Reads the current char and returns its corresponding token after advancing the cursor
 
 	var tok token.Token
 
@@ -45,11 +45,11 @@ func (l *Lexer) NextToken() token.Token {
 	switch l.ch {
 	case '=':
 		if l.peekChar() == '=' {
-			// save l.ch in a local variable before calling l.readChar() again so we don't lose the
+			// Save l.ch in a local variable before calling l.readChar() again so we don't lose the
 			// current character
 			ch := l.ch
 			l.readChar()
-			// concatenate the current assignment operator `=` and the subsequent `=`
+			// Concatenate the current assignment operator `=` and the subsequent `=`
 			literal := string(ch) + string(l.ch)
 			tok = token.Token{Type: token.EQ, Literal: literal}
 		} else {
@@ -61,12 +61,12 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.MINUS, l.ch)
 	case '!':
 		if l.peekChar() == '=' {
-			// save l.ch in a local variable before calling l.readChar() again so we don't lose the
+			// Save l.ch in a local variable before calling l.readChar() again so we don't lose the
 			// current character
 			ch := l.ch
 			l.readChar()
 			literal := string(ch) + string(l.ch)
-			// concatenate the current bang operator `!` and the subsequent `=`
+			// Concatenate the current bang operator `!` and the subsequent `=`
 			tok = token.Token{Type: token.NOT_EQ, Literal: literal}
 		} else {
 			tok = newToken(token.BANG, l.ch)
@@ -113,13 +113,13 @@ func (l *Lexer) NextToken() token.Token {
 }
 
 func newToken(tokenType token.TokenType, ch byte) token.Token {
-	// create a new token
+	// Creates a new token
 
 	return token.Token{Type: tokenType, Literal: string(ch)}
 }
 
 func (l *Lexer) readIdentifier() string {
-	// read in an identifier and advance the lexer's position until encountering a non-letter char
+	// Reads in an identifier and advances the lexer's position until encountering a non-letter char
 
 	position := l.position
 	for isLetter(l.ch) {
@@ -129,7 +129,7 @@ func (l *Lexer) readIdentifier() string {
 }
 
 func isLetter(ch byte) bool {
-	// check if the char falls within the ASCII code tables for valid letters, the code tables from
+	// Checks if the char falls within the ASCII code tables for valid letters, the code tables from
 	// a-z and A-Z are sequential
 
 	// `a`: 01100001, `z`: 01111010
@@ -139,7 +139,7 @@ func isLetter(ch byte) bool {
 }
 
 func (l *Lexer) skipWhitespace() {
-	// skips spaces, tabs, newlines, and carriage returns
+	// Skips spaces, tabs, newlines, and carriage returns
 
 	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
 		l.readChar()
@@ -147,7 +147,7 @@ func (l *Lexer) skipWhitespace() {
 }
 
 func (l *Lexer) readNumber() string {
-	// read in a number and advance the lexer's position until encountering a non-digit char
+	// Reads in a number and advances the lexer's position until encountering a non-digit char
 
 	position := l.position
 	for isDigit(l.ch) {
@@ -157,7 +157,7 @@ func (l *Lexer) readNumber() string {
 }
 
 func isDigit(ch byte) bool {
-	// check if the char falls within the ASCII code tables for valid numbers, the code tables from
+	// Checks if the char falls within the ASCII code tables for valid numbers, the code tables from
 	// 0-9 are sequential
 
 	// `0`: 00110000, `9`: 00111001
@@ -165,7 +165,7 @@ func isDigit(ch byte) bool {
 }
 
 func (l *Lexer) peekChar() byte {
-	// look ahead by one char and return it; similar to readChar() without incrementing the cursor
+	// Looks ahead by one char and returns it; similar to readChar() without incrementing the cursor
 
 	if l.readPosition >= len(l.input) {
 		return 0

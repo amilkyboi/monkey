@@ -8,9 +8,9 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
-	// compare raw monkey input and expected lexer output
+	// Compares raw monkey input and expected lexer output
 
-	// backticks denote a multiline raw string
+	// Backticks denote a multiline raw string
 	input := `
 	let five = 5;
 	let ten = 10;
@@ -33,7 +33,7 @@ func TestNextToken(t *testing.T) {
 	10 != 9;
 	`
 
-	// expected lexer output
+	// Expected lexer output
 	tests := []struct {
 		expectedType    token.TokenType
 		expectedLiteral string
