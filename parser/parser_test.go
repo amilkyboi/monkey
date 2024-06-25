@@ -83,6 +83,48 @@ func TestReturnStatements(t *testing.T) {
 	}
 }
 
+func TestIdentifierExpression(t *testing.T) {
+	// Compares raw monkey input and expected parser output for an identifer expression
+
+	input := "foobar;"
+
+	l := lexer.New(input)
+	p := New(l)
+
+	// Parse the input and check the parser itself for errors
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	// Assert that the number of statements is correct
+	if len(program.Statements) != 1 {
+		t.Fatalf("program does not have enough staments. got=%d", len(program.Statements))
+	}
+
+	// Check that the first (and only) statement in the program is an expression
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.ExpressionStatement. got=%T",
+			program.Statements[0])
+	}
+
+	// Check that the expression statement is an identifier
+	ident, ok := stmt.Expression.(*ast.Identifier)
+
+	if !ok {
+		t.Fatalf("exp not *ast.Identifier. got=%T", stmt.Expression)
+	}
+
+	// Check that the identifier has the correct value of `foobar`
+	if ident.Value != "foobar" {
+		t.Errorf("ident.Value not %s. got=%s", "foobar", ident.Value)
+	}
+
+	if ident.TokenLiteral() != "foobar" {
+		t.Errorf("ident.TokenLiteral not %s. got=%s", "foobar", ident.TokenLiteral())
+	}
+}
+
 func checkParserErrors(t *testing.T, p *Parser) {
 	// Checks the parser for errors, prints them out, and stops the test if any are encountered
 

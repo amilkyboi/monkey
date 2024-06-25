@@ -9,7 +9,24 @@ import (
 	"monkey/token"
 )
 
+const (
+	// Operator precedences
+
+	// The iota keyword gives the following constants incrementing numbers as values; The blank
+	// identifier _ takes the zero value and the following constants get assigned the values 1 to 7
+	_ int = iota
+	LOWEST
+	EQUALS      // ==
+	LESSGREATER // < or >
+	SUM         // +
+	PRODUCT     // *
+	PREFIX      // -x or !x
+	CALL        // myFunction(x)
+)
+
 type Parser struct {
+	// The parser implementation
+
 	l *lexer.Lexer
 
 	// Slice of strings to hold error messages
@@ -35,7 +52,12 @@ type (
 
 func New(l *lexer.Lexer) *Parser {
 	// Creates a new parser
+
 	p := &Parser{l: l, errors: []string{}}
+
+	// Initialize the prefix parse function map and register a parsing function
+	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
+	p.registerPrefix(token.IDENT, p.parseIdentifier)
 
 	// Read two tokens, so curToken and peekToken are both set
 	p.nextToken()
@@ -85,19 +107,43 @@ func (p *Parser) ParseProgram() *ast.Program {
 func (p *Parser) parseStatement() ast.Statement {
 	// Parses a statement based on its corresponding token
 
+	// The only two pure statement types in monkey are `let` and `return` statements, so if they
+	// aren't encountered, the statement must be an expression
 	switch p.curToken.Type {
 	case token.LET:
 		return p.parseLetStatement()
 	case token.RETURN:
 		return p.parseReturnStatement()
 	default:
+		return p.parseExpressionStatement()
+	}
+}
+
+func (p *Parser) parseExpression(precedence int) ast.Expression {
+	// Parses an expression based on its operator precedence
+
+	// Check if there is a parsing function associated with the current token type in the prefix
+	// position
+	prefix := p.prefixParseFns[p.curToken.Type]
+
+	if prefix == nil {
 		return nil
 	}
+
+	leftExp := prefix()
+
+	return leftExp
+}
+
+func (p *Parser) parseIdentifier() ast.Expression {
+	// Returns an identifier with the current token and the current token literal
+
+	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 }
 
 func (p *Parser) parseLetStatement() *ast.LetStatement {
 	// Constructs an *ast.LetStatement node with a LET token
-	// let <identifer> = <expression>
+	// let <identifer> = <expression>;
 
 	stmt := &ast.LetStatement{Token: p.curToken}
 
@@ -125,7 +171,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 
 func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	// Constructs an *ast.ReturnStatement node with a RETURN token
-	// return <expression>
+	// return <expression>;
 
 	stmt := &ast.ReturnStatement{Token: p.curToken}
 
@@ -134,6 +180,22 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	// TODO: 06/22/24 - For now, we're skipping the expressions until we encounter a semicolon
 
 	for !p.curTokenIs(token.SEMICOLON) {
+		p.nextToken()
+	}
+
+	return stmt
+}
+
+func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
+	// Constructs an *ast.ExpressionStatement node with an expression statement
+
+	stmt := &ast.ExpressionStatement{Token: p.curToken}
+
+	// Parse the expression starting with the lowest operator precedence
+	stmt.Expression = p.parseExpression(LOWEST)
+
+	// Check for an optional semicolon
+	if p.peekTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
 
