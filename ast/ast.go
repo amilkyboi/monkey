@@ -106,6 +106,7 @@ func (rs *ReturnStatement) TokenLiteral() string {
 
 func (rs *ReturnStatement) String() string {
 	// Returns "return <value>;" as a string
+
 	var out bytes.Buffer
 
 	out.WriteString(rs.TokenLiteral() + " ")
@@ -166,4 +167,27 @@ func (i *Identifier) String() string {
 	// Returns the identifier as a string
 
 	return i.Value
+}
+
+type IntegerLiteral struct {
+	// Holds an integer literal
+	// 5; => holds: INT and 5
+
+	Token token.Token
+	Value int64
+}
+
+// Implements the Expression interface
+func (il *IntegerLiteral) expressionNode() {}
+
+func (il *IntegerLiteral) TokenLiteral() string {
+	// Implements the Node interface
+
+	return il.Token.Literal
+}
+
+func (il *IntegerLiteral) String() string {
+	// Returns the integer literal as a string
+
+	return il.Token.Literal
 }

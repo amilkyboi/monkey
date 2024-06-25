@@ -1,7 +1,5 @@
 // main.go
 
-// NOTE: 06/19/24 - on page 53
-
 package main
 
 import (
