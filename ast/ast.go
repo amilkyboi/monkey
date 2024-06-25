@@ -222,3 +222,36 @@ func (pe *PrefixExpression) String() string {
 
 	return out.String()
 }
+
+type InfixExpression struct {
+	// Holds an infix expression
+	// 5 - 5; => holds: 5, MINUS, "-", and 5
+
+	Token    token.Token
+	Left     Expression
+	Operator string
+	Right    Expression
+}
+
+// Implements the Expression interface
+func (ie *InfixExpression) expressionNode() {}
+
+func (ie *InfixExpression) TokenLiteral() string {
+	// Implements the Node interface
+
+	return ie.Token.Literal
+}
+
+func (ie *InfixExpression) String() string {
+	// Returns the infix expression as a string
+
+	var out bytes.Buffer
+
+	out.WriteString("(")
+	out.WriteString(ie.Left.String())
+	out.WriteString(" " + ie.Operator + " ")
+	out.WriteString(ie.Right.String())
+	out.WriteString(")")
+
+	return out.String()
+}
