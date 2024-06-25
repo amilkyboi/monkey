@@ -191,3 +191,34 @@ func (il *IntegerLiteral) String() string {
 
 	return il.Token.Literal
 }
+
+type PrefixExpression struct {
+	// Holds a prefix expression
+	// -5; => holds: MINUS, "-", and 5
+
+	Token    token.Token
+	Operator string     // Either "-" or "!", the only two valid prefix operators
+	Right    Expression // The entire expression to the right of the operator
+}
+
+// Implements the Expression interface
+func (pe *PrefixExpression) expressionNode() {}
+
+func (pe *PrefixExpression) TokenLiteral() string {
+	// Implements the Node interface
+
+	return pe.Token.Literal
+}
+
+func (pe *PrefixExpression) String() string {
+	// Returns the prefix expression as a string
+
+	var out bytes.Buffer
+
+	out.WriteString("(")
+	out.WriteString(pe.Operator)
+	out.WriteString(pe.Right.String())
+	out.WriteString(")")
+
+	return out.String()
+}

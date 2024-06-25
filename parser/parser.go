@@ -60,6 +60,8 @@ func New(l *lexer.Lexer) *Parser {
 	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
 	p.registerPrefix(token.IDENT, p.parseIdentifier)
 	p.registerPrefix(token.INT, p.parseIntegerLiteral)
+	p.registerPrefix(token.BANG, p.parsePrefixExpression)
+	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
 
 	// Read two tokens, so curToken and peekToken are both set
 	p.nextToken()
@@ -129,6 +131,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 	prefix := p.prefixParseFns[p.curToken.Type]
 
 	if prefix == nil {
+		p.noPrefixParseFnError(p.curToken.Type)
 		return nil
 	}
 
@@ -205,7 +208,7 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 }
 
 func (p *Parser) parseIntegerLiteral() ast.Expression {
-	// COnstructs an *ast.IntegerLiteral node with an integer literal
+	// Constructs an *ast.IntegerLiteral node with an integer literal
 
 	lit := &ast.IntegerLiteral{Token: p.curToken}
 
@@ -221,6 +224,27 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 	lit.Value = value
 
 	return lit
+}
+
+func (p *Parser) parsePrefixExpression() ast.Expression {
+	// Constructs an *ast.PrefixExpression node with a prefix expression
+
+	expression := &ast.PrefixExpression{
+		Token:    p.curToken,
+		Operator: p.curToken.Literal,
+	}
+
+	// Advance the tokens; this step is crucial since prefix expressions are meaningless without
+	// operating on some expression
+	p.nextToken()
+
+	// The tokens have been advanced by this point, so the `5` in `-5` would be passed to the
+	// expression parsing function; this function checks the registered prefix parsing functions and
+	// finds parseIntegerLiteral, which builds a new *ast.IntegerLiteral node that is used in the
+	// Right field of *ast.PrefixExpression
+	expression.Right = p.parseExpression(PREFIX)
+
+	return expression
 }
 
 func (p *Parser) curTokenIs(t token.TokenType) bool {
@@ -258,4 +282,11 @@ func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
 	// Adds a function entry to the infix map
 
 	p.infixParseFns[tokenType] = fn
+}
+
+func (p *Parser) noPrefixParseFnError(t token.TokenType) {
+	// Returns an error if an invalid prefix parse operator is found
+
+	msg := fmt.Sprintf("no prefix parse function for %s found", t)
+	p.errors = append(p.errors, msg)
 }
