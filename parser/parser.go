@@ -19,7 +19,19 @@ type Parser struct {
 	// input, they point to tokens
 	curToken  token.Token
 	peekToken token.Token
+
+	// Used to check if the appropriate map (prefix or infix) has a parsing function associated with
+	// curToken.Type
+	prefixParseFns map[token.TokenType]prefixParseFn
+	infixParseFns  map[token.TokenType]infixParseFn
 }
+
+type (
+	prefixParseFn func() ast.Expression
+
+	// The argument being passed is the "left side" of the infix operator, e.g. the 5 in `5 + 6`
+	infixParseFn func(ast.Expression) ast.Expression
+)
 
 func New(l *lexer.Lexer) *Parser {
 	// Creates a new parser
@@ -151,4 +163,16 @@ func (p *Parser) expectPeek(t token.TokenType) bool {
 		p.peekError(t)
 		return false
 	}
+}
+
+func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
+	// Adds a function entry to the prefix map
+
+	p.prefixParseFns[tokenType] = fn
+}
+
+func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
+	// Adds a function entry to the infix map
+
+	p.infixParseFns[tokenType] = fn
 }
